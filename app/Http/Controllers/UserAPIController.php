@@ -33,7 +33,7 @@ class UserAPIController extends Controller
     public function store(Request $request)
     {
         // Validation
-        $validator = Validator::make($request -> all(),[
+        $validator = Validator::make($request->all(), [
             'username' => 'required|string|unique:users',
             'fullname' => 'required|string',
             'email' => 'required|string|email|unique:users',
@@ -41,9 +41,9 @@ class UserAPIController extends Controller
         ]);
 
         // Return validation errors on failure
-        if ($validator -> fails()) {
-            $errors = $validator -> errors() -> messages();
-            return response() -> json([
+        if ($validator->fails()) {
+            $errors = $validator->errors()->messages();
+            return response()->json([
                 'message' => 'The given data was invalid.',
                 'errors' => $errors
             ], 422);
@@ -51,13 +51,13 @@ class UserAPIController extends Controller
 
         // Save Account
         $user = User::create([
-            'fullname' => $request -> fullname,
-            'username' => $request -> username,
-            'email' => $request -> email,
-            'password' => bcrypt($request -> password),
+            'fullname' => $request->fullname,
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
             'role' => 'public',
             'phone' => '',
-            'photo' => '',
+            'photo' => 'blank_profile.png',
         ]);
 
         return new UserResource($user, true, 'User registered successfully');
@@ -87,58 +87,55 @@ class UserAPIController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $username = User::findOrFail($id) -> username;
-        $email = User::findOrFail($id) -> email;
+        $username = User::findOrFail($id)->username;
+        $email = User::findOrFail($id)->email;
 
         // Validation
-        if (($username == $request -> username) && ($email != $request -> email)) {
-            $validator = Validator::make($request -> all(),[
+        if (($username == $request->username) && ($email != $request->email)) {
+            $validator = Validator::make($request->all(), [
                 'fullname' => 'required|string',
                 'email' => 'required|string|email|unique:users',
                 'phone' => 'nullable|string'
             ]);
-        }
-        elseif (($username != $request -> username) && ($email == $request -> email)) {
-            $validator = Validator::make($request -> all(),[
+        } elseif (($username != $request->username) && ($email == $request->email)) {
+            $validator = Validator::make($request->all(), [
                 'username' => 'required|string|unique:users',
                 'fullname' => 'required|string',
                 'phone' => 'nullable|string'
             ]);
-        }
-        elseif (($username != $request -> username) && ($email != $request -> email)) {
-            $validator = Validator::make($request -> all(),[
+        } elseif (($username != $request->username) && ($email != $request->email)) {
+            $validator = Validator::make($request->all(), [
                 'username' => 'required|string|unique:users',
                 'fullname' => 'required|string',
                 'email' => 'required|string|email|unique:users',
                 'phone' => 'nullable|string'
             ]);
-        }
-        else {
-            $validator = Validator::make($request -> all(),[
+        } else {
+            $validator = Validator::make($request->all(), [
                 'fullname' => 'required|string',
                 'phone' => 'nullable|string'
             ]);
         }
 
         // Return validation errors on failure
-        if ($validator -> fails()) {
-            $errors = $validator -> errors() -> messages();
-            return response() -> json([
+        if ($validator->fails()) {
+            $errors = $validator->errors()->messages();
+            return response()->json([
                 'message' => 'The given data was invalid.',
                 'errors' => $errors
             ], 422);
         }
 
-        $phone = $request -> phone;
+        $phone = $request->phone;
         if (!$phone) {
             $phone = '';
         }
 
         $user = User::findOrFail($id);
         $user->update([
-            'fullname' => $request -> fullname,
-            'username' => $request -> username,
-            'email' => $request -> email,
+            'fullname' => $request->fullname,
+            'username' => $request->username,
+            'email' => $request->email,
             'phone' => $phone
         ]);
 

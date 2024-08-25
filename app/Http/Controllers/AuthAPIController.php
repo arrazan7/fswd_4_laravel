@@ -14,50 +14,48 @@ class AuthAPIController extends Controller
     public function login(Request $request)
     {
         // Validation
-        $validator = Validator::make($request -> all(),[
+        $validator = Validator::make($request->all(), [
             'username' => 'required|string',
             'password' => 'required'
         ]);
 
         // Return validation errors on failure
-        if ($validator -> fails()) {
-            $errors = $validator -> errors() -> messages();
-            return response() -> json([
+        if ($validator->fails()) {
+            $errors = $validator->errors()->messages();
+            return response()->json([
                 'message' => 'The given data was invalid.',
                 'errors' => $errors,
             ], 422);
         }
 
         // user data check by name
-        $user = User::where('username', $request -> username) -> first();
+        $user = User::where('username', $request->username)->first();
         if (!empty($user)) {
             // user data exists
 
             // Password Check
-            if (Hash::check($request -> password, $user -> password)) {
+            if (Hash::check($request->password, $user->password)) {
                 // Password matched
 
                 // Auth Token
-                $token = $user -> createToken("mytoken") -> plainTextToken;
-                return response() -> json([
+                $token = $user->createToken("mytoken")->plainTextToken;
+                return response()->json([
                     'status' => true,
                     'message' => 'User logged in',
                     'token' => $token,
                     'data' => []
                 ]);
-            }
-            else {
+            } else {
                 // Password not matched
-                return response() -> json([
+                return response()->json([
                     'status' => false,
                     'message' => 'Invalid password',
                     'data' => []
                 ], 422);
             }
-        }
-        else {
+        } else {
             // user data not exists
-            return response() -> json([
+            return response()->json([
                 'status' => false,
                 'message' => "Username doesn't match with records",
                 'data' => []
@@ -68,8 +66,8 @@ class AuthAPIController extends Controller
     // GET [Auth: Token]
     public function logout()
     {
-        if (auth() -> user() -> tokens() -> delete()) {
-            return response() -> json([
+        if (auth()->user()->tokens()->delete()) {
+            return response()->json([
                 'status' => true,
                 'message' => 'User logged out',
                 'data' => []
