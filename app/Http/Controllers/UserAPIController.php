@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 
 class UserAPIController extends Controller
@@ -140,6 +141,63 @@ class UserAPIController extends Controller
         ]);
 
         return new UserResource($user, true, 'User updated successfully');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function updatePhoto(Request $request)
+    {
+        // Dapatkan data yang dikirim dari Laravel UI
+        $data = $request->all();
+
+        // Validate input data
+        if (empty($data['id'])) {
+            return response()->json([
+                'status' => false,
+                'message' => "Input id tidak boleh kosong.",
+                'data' => []
+            ], 400);
+            exit;
+        }
+
+        //upload image
+        if ($request->hasFile('photo')) {
+            $extension = $request->file('photo')->getClientOriginalExtension();
+            $basename = uniqid() . time();
+
+            $namaFileFoto = "{$basename}.{$extension}";
+        } else {
+            $namaFileFoto = 'blank_profile.png';
+        }
+
+        try {
+            $user = User::findOrFail($data['id']);
+            // delete old image
+            if ($user['photo'] != 'blank_profile.png') {
+                File::delete(public_path() . "/storage/profile/" . $user['photo']);
+            }
+
+            // save new image
+            if ($namaFileFoto != 'blank_profile.png') {
+                $pathFoto = $request->file('photo')->storeAs('public/profile', $namaFileFoto);
+            }
+            $user->update([
+                'photo' => $namaFileFoto
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Foto berhasil diperbarui',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal gagal memperbarui foto ' . $e . '', // User-friendly error message,
+                'data' => []
+            ], 500);
+        }
     }
 
     /**

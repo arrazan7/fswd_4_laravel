@@ -15,6 +15,7 @@ use App\Http\Controllers\BookingAPIController;
 Route::post('/authenticate', [AuthAPIController::class, 'login']);
 Route::post('/register', [UserAPIController::class, 'store']);
 Route::post('/update-user/{id}', [UserAPIController::class, 'update']);
+Route::post('/update-photo', [UserAPIController::class, 'updatePhoto']);
 Route::get('/destroy-user/{id}', [UserAPIController::class, 'destroy']);
 Route::get('/index-travel', [TravelAPIController::class, 'index']);
 Route::post('/filter-travel', [TravelAPIController::class, 'filter']);
